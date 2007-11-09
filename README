@@ -1,4 +1,30 @@
 ConvertAttachmentTo
 ===================
 
-Description goes here
+Written for New Zealand Registry Services as an extention of the Kete software (an open source Rails application for collaborative digital archives) by Walter McGinnis and Steven Upritchard for Katipo Communications, Ltd. (http://katipo.co.nz/).
+
+The general idea is to take uploaded documents, PDF and Word to start, and convert them to either plain text or HTML, depending on settings, and stick the value in the specified attribute of the model.
+
+Requirements:
+
+This plugin requires that these external command line programs be installed as it is mainly a wrapper for these programs.  These are:
+
+* xpdf
+
+* pdftohtml
+
+* wv (not wv2)
+  Mac OS X:
+  http://wvware.sourceforge.net/wvWare.html if you installed
+  ImageMagick from source (probably wise) rather than MacPorts, install from source
+  otherwise "sudo port install wv"
+
+Important: This means that ConvertAttachmentTo isn't compatible with Windows systems.
+
+Installation:
+
+Usage:
+
+In your model, specify the output mime type and the attribute of the model that should be populated with it.
+
+convert_attachment_to :html, :description
