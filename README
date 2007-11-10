@@ -7,24 +7,45 @@ The general idea is to take uploaded documents, PDF and Word to start, and conve
 
 Requirements:
 
-This plugin requires that these external command line programs be installed as it is mainly a wrapper for these programs.  These are:
+Currently this plugin handles, Word documents, PDFs, HTML, and plain text uploads.  It may have other content types added in the future. Look for @@acceptable_content_types in the code for an indication.
 
-* xpdf
+This plugin requires that these external command line programs be installed as it is mainly a wrapper for these programs.  These are:
 
 * pdftohtml
 
+* pdftotext
+
 * wv (not wv2)
+  Debian (or Ubuntu)
+  sudo apt-get install wv
+
   Mac OS X:
   http://wvware.sourceforge.net/wvWare.html if you installed
   ImageMagick from source (probably wise) rather than MacPorts, install from source
   otherwise "sudo port install wv"
 
+* lynx for html to plain text
+
+* RedCloth ruby gem
+
 Important: This means that ConvertAttachmentTo isn't compatible with Windows systems.
 
+It also assumes that you are using the attachment_fu plugin to manage your model's file uploads.
+
 Installation:
+
+You may want to set the max_pdf_pages lower or higher than the default 10.
 
 Usage:
 
 In your model, specify the output mime type and the attribute of the model that should be populated with it.
 
 convert_attachment_to :html, :description
+
+At this stage, you may only choose to convert to HTML or plain text,
+i.e.
+convert_attachment_to :html, :some_attribute
+or
+convert_attachment_to :text, :some_attribute
+
+TODO: look into whether we should sanitize specified attribute, seems unnecessary...
