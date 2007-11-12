@@ -4,6 +4,9 @@ require 'test/unit'
 require File.expand_path(File.join(File.dirname(__FILE__), '../../../../config/environment.rb'))
 require 'active_record/fixtures'
 
+# this plugin requires attachment_fu
+require File.expand_path(File.join(File.dirname(__FILE__), '../../../../vendor/plugins/attachment_fu/lib/technoweenie/attachment_fu.rb'))
+
 config = YAML::load(IO.read(File.dirname(__FILE__) + '/database.yml'))
 ActiveRecord::Base.logger = Logger.new(File.dirname(__FILE__) + "/debug.log")
 ActiveRecord::Base.establish_connection(config[ENV['DB'] || 'sqlite'])
