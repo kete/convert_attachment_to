@@ -64,12 +64,13 @@ module Katipo #:nodoc:
           case configuration[:output_type]
           when :html
             # read and discard the extra stuff we don't need
+            # TODO: make this split case insensitive
             raw_parts = File.read(self.full_filename).split('<body')
-            # grab everything after the first >
-            raw_parts[1].scan(/^[^>]*>/)
-            raw_parts.delete_at(0)
-            raw_parts = raw_parts.to_s.split('</body>')
-            raw_parts[0]
+            # pop off first line, which has remains of body tag
+            raw_body_parts = raw_parts[1].split(/\n/)
+            raw_body_parts.delete_at(0)
+            raw_body_parts = raw_body_parts.join("\n").to_s.split('</body>')
+            raw_body_parts[0]
           when :text
             # convert and discard the extra stuff we don't need
             # TODO: this has hardcoded debian/ubuntu config file path
@@ -109,8 +110,7 @@ module Katipo #:nodoc:
           when :html
             # convert and discard the extra stuff we don't need
             raw_parts = `pdftohtml -l #{configuration[:max_pdf_pages]} -i -noframes -stdout #{self.full_filename}`.split('<BODY')
-            logger.debug("what are rawparts: " + raw_parts.to_s)
-            # TODO: pop off first line (remains of body tag)
+            # pop off first line (remains of body tag)
             raw_body_parts = raw_parts[1].split(/\n/)
             raw_body_parts.delete_at(0)
             raw_body_parts = raw_body_parts.join("\n").to_s.split('</BODY>')
