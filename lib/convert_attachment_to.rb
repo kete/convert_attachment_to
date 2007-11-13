@@ -47,7 +47,6 @@ module Katipo #:nodoc:
         # put into attribute specified
         def do_conversion
           type_to_convert = self.content_type
-          logger.debug("what is class: #{self.class.name}")
           if Katipo::Acts::ConvertAttachmentTo.acceptable_content_types.include?(type_to_convert)
             output = String.new
 
@@ -109,15 +108,16 @@ module Katipo #:nodoc:
           case configuration[:output_type]
           when :html
             # convert and discard the extra stuff we don't need
-            raw_parts = `pdftohtml -l #{configuration[:max_pdf_pages]} -i -noframes #{self.full_filename}`.split('<body')
-            # grab everything after the first >
-            raw_parts[1].scan(/^[^>]*>/)
-            raw_parts.delete_at(0)
-            raw_parts = raw_parts.to_s.split('</body>')
-            raw_parts[0]
+            raw_parts = `pdftohtml -l #{configuration[:max_pdf_pages]} -i -noframes -stdout #{self.full_filename}`.split('<BODY')
+            logger.debug("what are rawparts: " + raw_parts.to_s)
+            # TODO: pop off first line (remains of body tag)
+            raw_body_parts = raw_parts[1].split(/\n/)
+            raw_body_parts.delete_at(0)
+            raw_body_parts = raw_body_parts.join("\n").to_s.split('</BODY>')
+            raw_body_parts[0]
           when :text
             # convert and discard the extra stuff we don't need
-            `pdftohtml -l #{configuration[:max_pdf_pages]} #{self.full_filename}`
+            `pdftotext -l #{configuration[:max_pdf_pages]} -stdout #{configuration[:max_pdf_pages]} #{self.full_filename}`
           end
         end
       end
