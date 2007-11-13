@@ -8,6 +8,12 @@ require 'redcloth'
 module Katipo #:nodoc:
   module Acts #:nodoc:
     module ConvertAttachmentTo
+      @@acceptable_content_types = ['application/msword',
+                                    'application/pdf',
+                                    'text/html',
+                                    'text/plain']
+      mattr_reader :acceptable_content_types
+
       def self.included(mod)
         mod.extend(ClassMethods)
       end
@@ -18,16 +24,10 @@ module Katipo #:nodoc:
       module ClassMethods
         def convert_attachment_to(output_type, target_attribute)
           class_eval do
-            include ConvertAttachmentTo::InstanceMethods
+            include Katipo::Acts::ConvertAttachmentTo::InstanceMethods
 
-            cattr_accessor :acceptable_content_types
-            @@acceptable_content_types = ['application/msword',
-                                          'application/pdf',
-                                          'text/html',
-                                          'text/plain']
-
-            cattr_accessor :configuration
-            @@configuration = { :output_type => output_type,
+            class_inheritable_accessor :configuration
+            self.configuration = { :output_type => output_type,
               :target_attribute => target_attribute,
               :max_pdf_pages => 10 }
 
@@ -47,8 +47,8 @@ module Katipo #:nodoc:
         # put into attribute specified
         def do_conversion
           type_to_convert = self.content_type
-
-          if @@acceptable_content_types.include?(type_to_convert)
+          logger.debug("what is class: #{self.class.name}")
+          if Katipo::Acts::ConvertAttachmentTo.acceptable_content_types.include?(type_to_convert)
             output = String.new
 
             if type_to_convert == 'text/plain'
@@ -57,12 +57,12 @@ module Katipo #:nodoc:
               output = self.send('convert_from_' + type_to_convert.split('/')[1])
             end
 
-            write_attribute @@configuration[:target_attribute], output
+            write_attribute configuration[:target_attribute], output
           end
         end
 
         def convert_from_html
-          case @@configuration[:output_type]
+          case configuration[:output_type]
           when :html
             # read and discard the extra stuff we don't need
             raw_parts = File.read(self.full_filename).split('<body')
@@ -80,7 +80,7 @@ module Katipo #:nodoc:
 
         def convert_from_text
           text = File.read(self.full_filename)
-          case @@configuration[:output_type]
+          case configuration[:output_type]
           when :html
             # read and discard the extra stuff we don't need
             raw = RedCloth.new text
@@ -91,7 +91,7 @@ module Katipo #:nodoc:
         end
 
         def convert_from_msword
-          case @@configuration[:output_type]
+          case configuration[:output_type]
           when :html
             # convert and discard the extra stuff we don't need
             raw_parts = `wvWare -c utf-8 --nographics -X #{self.full_filename}`.split('<doc>')
@@ -106,10 +106,10 @@ module Katipo #:nodoc:
         end
 
         def convert_from_pdf
-          case @@configuration[:output_type]
+          case configuration[:output_type]
           when :html
             # convert and discard the extra stuff we don't need
-            raw_parts = `pdftohtml -l #{@@configuration[:max_pdf_pages]} -i -noframes #{self.full_filename}`.split('<body')
+            raw_parts = `pdftohtml -l #{configuration[:max_pdf_pages]} -i -noframes #{self.full_filename}`.split('<body')
             # grab everything after the first >
             raw_parts[1].scan(/^[^>]*>/)
             raw_parts.delete_at(0)
@@ -117,7 +117,7 @@ module Katipo #:nodoc:
             raw_parts[0]
           when :text
             # convert and discard the extra stuff we don't need
-            `pdftohtml -l #{@@configuration[:max_pdf_pages]} #{self.full_filename}`
+            `pdftohtml -l #{configuration[:max_pdf_pages]} #{self.full_filename}`
           end
         end
       end

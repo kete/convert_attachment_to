@@ -5,15 +5,11 @@ require File.join(File.dirname(__FILE__), 'test_helper')
 require File.join(File.dirname(__FILE__), 'fixtures/document')
 
 class ConvertAttachmentToTest < Test::Unit::TestCase
-  def setup
-    @new_model = { :title => 'test document' }
-    # fake out file upload
-    @new_model[:uploaded_data] = fixture_file_upload('/files/test.pdf', 'application/pdf')
-  end
 
   # test methods that do the conversions
   def test_convert_from_pdf
-    to_html_doc = DocumentToHtml.new @new_model
+    to_html_doc = DocumentToHtml.new(:title => 'test document',
+                                     :uploaded_data => fixture_file_upload('/files/test.pdf', 'application/pdf'))
     to_html_doc.save
     to_html_doc.reload
 
