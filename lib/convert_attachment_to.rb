@@ -71,11 +71,11 @@ module Katipo #:nodoc:
             raw_body_parts = raw_parts[1].split(/\n/)
             raw_body_parts.delete_at(0)
             raw_body_parts = raw_body_parts.join("\n").to_s.split('</body>')
-            raw_body_parts[0]
+            raw_body_parts[0].strip
           when :text
             # convert and discard the extra stuff we don't need
             # TODO: this has hardcoded debian/ubuntu config file path
-            `lynx -dump file://#{self.full_filename}`
+            `lynx -dump file://#{self.full_filename}`.strip
           end
         end
 
@@ -85,7 +85,7 @@ module Katipo #:nodoc:
           when :html
             # read and discard the extra stuff we don't need
             raw = RedCloth.new text
-            raw.to_html
+            raw.to_html.strip
           when :text
             text
           end
@@ -98,11 +98,11 @@ module Katipo #:nodoc:
             raw_parts = `wvWare -c utf-8 --nographics -X #{self.full_filename}`.split('<doc>')
             # grab the the stuff after the <doc>, but before </doc>
             raw_parts = raw_parts[1].split('</doc>')
-            raw_parts[0]
+            raw_parts[0].strip
           when :text
             # convert and discard the extra stuff we don't need
             # TODO: this has hardcoded debian/ubuntu config file path
-            `wvWare -c utf-8 --nographics -x /usr/share/wv/wvText.xml #{self.full_filename}`
+            `wvWare -c utf-8 --nographics -x /usr/share/wv/wvText.xml #{self.full_filename}`.strip
           end
         end
 
@@ -115,7 +115,7 @@ module Katipo #:nodoc:
             raw_body_parts = raw_parts[1].split(/\n/)
             raw_body_parts.delete_at(0)
             raw_body_parts = raw_body_parts.join("\n").to_s.split('</BODY>')
-            raw_body_parts[0]
+            raw_body_parts[0].strip
           when :text
             # convert and discard the extra stuff we don't need
             Dir.mkdir Katipo::Acts::ConvertAttachmentTo.tempfile_path unless File.exists?(Katipo::Acts::ConvertAttachmentTo.tempfile_path)
@@ -124,7 +124,7 @@ module Katipo #:nodoc:
             new_filename = File.basename(existing_filename, File.extname(existing_filename)) + ".txt"
             full_new_filename = File.join(Katipo::Acts::ConvertAttachmentTo.tempfile_path, new_filename)
             `pdftotext -l #{configuration[:max_pdf_pages]} -nopgbrk #{self.full_filename} #{full_new_filename}`
-            File.read(full_new_filename)
+            File.read(full_new_filename).strip
           end
         end
       end
