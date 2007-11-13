@@ -87,7 +87,7 @@ module Katipo #:nodoc:
             raw = RedCloth.new text
             raw.to_html.strip
           when :text
-            text
+            text.strip
           end
         end
 
