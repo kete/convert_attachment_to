@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), 'abstract_unit')
+require File.join(File.dirname(__FILE__), 'test_helper')
 
 # simply test whether acts_as_versioned is installed in this app
 class AttachmentFuTest < Test::Unit::TestCase
