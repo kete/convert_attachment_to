@@ -18,6 +18,8 @@ module Katipo #:nodoc:
       module ClassMethods
         def convert_attachment_to(output_type, target_attribute)
           class_eval do
+            include ConvertAttachmentTo::InstanceMethods
+
             cattr_accessor :acceptable_content_types
             @@acceptable_content_types = ['application/msword',
                                           'application/pdf',
@@ -25,16 +27,14 @@ module Katipo #:nodoc:
                                           'text/plain']
 
             cattr_accessor :configuration
-            @@configuration = { :output_type = output_type,
-              :target_attribute = target_attribute,
+            @@configuration = { :output_type => output_type,
+              :target_attribute => target_attribute,
               :max_pdf_pages => 10 }
 
             # this needs to come after attachment_fu
             # in the order of things
             after_validation :do_conversion
           end
-
-          include ConvertAttachmentTo::InstanceMethods
         end
       end
 

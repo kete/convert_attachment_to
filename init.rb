@@ -1,1 +1,1 @@
-# Include hook code here
+require 'convert_attachment_to'
