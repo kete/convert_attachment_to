@@ -54,6 +54,13 @@ blog post:
 
 http://blog.katipo.co.nz/?p=35
 
+Recommended:
+
+Before starting to use convert_attachment_to, I suggest that you should run its tests to make sure all the required software is installed and being found by your application, etc. You will need sqlite installed for testing to work.  Here's how:
+
+rake test:plugins PLUGIN=convert_attachment_to # from your apps rails root
+rm convert_attachment_to_plugin.sqlite.db # toss the db, after each test run
+
 ====
 Usage:
 
