@@ -6,6 +6,15 @@ require File.join(File.dirname(__FILE__), 'fixtures/document')
 
 class ConvertAttachmentToTest < Test::Unit::TestCase
 
+  # test that we have required software
+  REQUIRED_COMMANDS = %w(pdftohtml pdftotext wvWare lynx)
+
+  def test_required_commands
+    REQUIRED_COMMANDS.each do |command|
+      assert_not_nil `which #{command}`, "convert_attachment_to plugin: #{command} not found, is it installed?"
+    end
+  end
+
   # test methods that do the conversions
   def test_convert_from_pdf_to_html
     to_html_doc = DocumentToHtml.new(:title => 'test document',
@@ -78,6 +87,4 @@ class ConvertAttachmentToTest < Test::Unit::TestCase
 
     assert_equal File.read(File.join(File.dirname(__FILE__), 'fixtures/files/to_text.txt')), to_text_doc.description, "convert_attachment_to plugin: text to text results in unexpected value."
   end
-
-  # test that uploaded file gets added to proper attribute in proper form
 end
