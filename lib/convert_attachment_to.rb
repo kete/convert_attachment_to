@@ -12,7 +12,8 @@ module Katipo #:nodoc:
                                     'application/pdf',
                                     'text/html',
                                     'text/plain']
-      mattr_reader :acceptable_content_types
+      @@tempfile_path = File.join(RAILS_ROOT, 'tmp', 'convert_attachment_to')
+      mattr_reader :acceptable_content_types, :tempfile_path
 
       def self.included(mod)
         mod.extend(ClassMethods)
@@ -117,7 +118,13 @@ module Katipo #:nodoc:
             raw_body_parts[0]
           when :text
             # convert and discard the extra stuff we don't need
-            `pdftotext -l #{configuration[:max_pdf_pages]} -stdout #{configuration[:max_pdf_pages]} #{self.full_filename}`
+            Dir.mkdir Katipo::Acts::ConvertAttachmentTo.tempfile_path unless File.exists?(Katipo::Acts::ConvertAttachmentTo.tempfile_path)
+
+            existing_filename = self.thumbnail_name_for(nil)
+            new_filename = File.basename(existing_filename, File.extname(existing_filename)) + ".txt"
+            full_new_filename = File.join(Katipo::Acts::ConvertAttachmentTo.tempfile_path, new_filename)
+            `pdftotext -l #{configuration[:max_pdf_pages]} -nopgbrk #{self.full_filename} #{full_new_filename}`
+            File.read(full_new_filename)
           end
         end
       end
